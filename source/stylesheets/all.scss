@@ -1,5 +1,27 @@
+@import 'mixin';
+
 $color: red;
 
+html,
 body {
-	color: $color;
+  height: 100%;
+}
+
+body {
+  align-items: center;
+  background: linear-gradient(to bottom, #ccc 0%, #fff 100%);
+  color: $color;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  filter: blur(3px);
+  transform: rotate(90deg);
+}
+
+.gg {
+  @include gg;
 }
