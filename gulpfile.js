@@ -5,11 +5,13 @@ var gulp = require('gulp'),
   sass = require('gulp-sass'),
   watch = require('gulp-watch'),
   scsslint = require('gulp-scss-lint'),
+  svgSprite = require('gulp-svg-sprites'),
+  filter = require('gulp-filter'),
+  svg2png = require('gulp-svg2png'),
+  fs = require('fs'),
   // post css
   postcss = require('gulp-postcss'),
-  autoprefixer = require('autoprefixer'),
-  mqpacker = require('css-mqpacker'),
-  csswring = require('csswring');
+  autoprefixer = require('autoprefixer');
 
 // Paths
 var paths = {
@@ -17,33 +19,62 @@ var paths = {
   'bower' : './bower_components/',
   'sass': './source/stylesheets/',
   'img': './source/images/',
-  'public': './public/'
+  'public': './public/',
+  'tpls': './gulp-tpls/'
 }
 
 // Sass
 gulp.task('sass', function() {
-  watch([paths.sass + '**/**.scss'], function(){
-    gulp.src([paths.sass + '**/**.scss'])
-      .pipe(plumber())
-      .pipe(sass({outputStyle: 'nested'})
-      .on('error', sass.logError))
-        .pipe(gulp.dest(paths.public + './stylesheets'))
-  });
-
+  gulp.src([paths.sass + '**/**.scss'])
+    .pipe(plumber())
+    .pipe(sass({outputStyle: 'nested'})
+    .on('error', sass.logError))
+      .pipe(gulp.dest(paths.public + './stylesheets'))
 });
 
 // sass lint
 gulp.task('scss-lint', function() {
-  watch([paths.sass + '**/**.scss'], function(){
-    gulp.src(paths.sass + '**/**.scss')
-      .pipe(plumber())
-      .pipe(scsslint({
-        'config': './lint.yml',
-        'maxBuffer': 3072000,
-        'filePipeOutput': 'scssReport.json'
-      }))
-      .pipe(gulp.dest('./reports'));
-  });
+  gulp.src([paths.sass + '**/**.scss', '!' + paths.sass + '_sprite.scss'])
+    .pipe(plumber())
+    .pipe(scsslint({
+      'config': './lint.yml',
+      'maxBuffer': 3072000,
+      'filePipeOutput': 'scssReport.json'
+    }))
+    .pipe(gulp.dest('./reports'));
+});
+
+watch([paths.sass + '**/*.scss'], function() {
+  gulp.start('sass', 'scss-lint');
+});
+
+
+// SVG Sprite
+gulp.task('svg-sprite', function() {
+  gulp.src('./source/images/sprites/*.svg')
+    .pipe(plumber())
+    .pipe(svgSprite({
+      svg: {
+        sprite: "sprite.svg"
+      },
+      cssFile: '_sprite.css',
+      selector: "icons-%f",
+      templates: {
+        css: require("fs").readFileSync(paths.tpls + 'svg-sprite.css', "utf-8")
+      }
+    }))
+    .pipe(gulp.dest(paths.public))
+    .pipe(filter("**/*.svg"))
+    .pipe(svg2png())
+    .pipe(gulp.dest(paths.public));
+});
+watch('./source/images/sprites/*.svg', function() {
+  gulp.start('svg-sprite');
+});
+watch(paths.public + '_sprite.css', function(){
+  gulp.src(paths.public + '_sprite.css')
+    .pipe(concat('_sprite.scss'))
+    .pipe(gulp.dest(paths.sass));
 });
 
 // postCSS
@@ -63,6 +94,9 @@ gulp.task('html', function() {
     .pipe(plumber())
     .pipe(gulp.dest('./public/'));
 });
+watch(paths.source + '**/**.html', function(){
+  gulp.start('html');
+});
 
 gulp.task('webserver', function() {
   gulp.src('./public')
@@ -74,7 +108,7 @@ gulp.task('webserver', function() {
     }));
 });
 
-gulp.task('default', ['scss-lint', 'sass', 'css', 'html', 'webserver']);
+gulp.task('default', ['svg-sprite', 'scss-lint', 'sass', 'css', 'html', 'webserver']);
 
 
 

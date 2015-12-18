@@ -1,0 +1,35 @@
+.icon {
+  font-size: 10px;
+}
+
+.icon:before {
+  content:' ';
+  vertical-align:middle;
+  display: inline-block;
+  background-image: url("../sprite.svg");
+  background-repeat: no-repeat;
+  background-size: 2.4em 6em;
+}
+
+.no-svg .icon:before {
+  background-image: url("../sprite.png");
+}
+
+.icon.icons-attach-money:before {
+  background-position: 0em 0em;
+  width: 1.8em;
+  height: 1.8em;
+}
+
+.icon.icons-border-bottom:before {
+  background-position: 0em -1.8em;
+  width: 1.8em;
+  height: 1.8em;
+}
+
+.icon.icons-border-inner:before {
+  background-position: 0em -3.6em;
+  width: 2.4em;
+  height: 2.4em;
+}
+
