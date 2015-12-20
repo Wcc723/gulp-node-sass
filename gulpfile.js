@@ -8,7 +8,6 @@ var gulp = require('gulp'),
   svgSprite = require('gulp-svg-sprites'),
   filter = require('gulp-filter'),
   svg2png = require('gulp-svg2png'),
-  fs = require('fs'),
   // post css
   postcss = require('gulp-postcss'),
   autoprefixer = require('autoprefixer');
