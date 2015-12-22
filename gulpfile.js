@@ -33,7 +33,7 @@ gulp.task('sass', function() {
 
 // sass lint
 gulp.task('scss-lint', function() {
-  gulp.src([paths.sass + '**/**.scss', '!' + paths.sass + '_sprite.scss'])
+  gulp.src([paths.sass + '**/**.scss'])
     .pipe(plumber())
     .pipe(scsslint({
       'config': './lint.yml',
@@ -54,9 +54,9 @@ gulp.task('svg-sprite', function() {
     .pipe(plumber())
     .pipe(svgSprite({
       svg: {
-        sprite: "sprite.svg"
+        sprite: "images/sprites/sprite.svg"
       },
-      cssFile: '_sprite.css',
+      cssFile: 'stylesheets/sprite.css',
       selector: "icons-%f",
       templates: {
         css: require("fs").readFileSync(paths.tpls + 'svg-sprite.css', "utf-8")
@@ -70,11 +70,6 @@ gulp.task('svg-sprite', function() {
 watch('./source/images/sprites/*.svg', function() {
   gulp.start('svg-sprite');
 });
-watch(paths.public + '_sprite.css', function(){
-  gulp.src(paths.public + '_sprite.css')
-    .pipe(concat('_sprite.scss'))
-    .pipe(gulp.dest(paths.sass));
-});
 
 // postCSS
 gulp.task('css', function () {
@@ -83,6 +78,8 @@ gulp.task('css', function () {
   ];
   watch(paths.public + 'stylesheets/**/**.css', function(){
     gulp.src(paths.public + 'stylesheets/**/**.css')
+      .pipe(plumber())
+      .pipe(concat('all.css'))
       .pipe(postcss(processors))
       .pipe(gulp.dest(paths.public + './css'));
   });
